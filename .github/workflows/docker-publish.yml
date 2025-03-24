@@ -22,10 +22,10 @@ jobs:
 
       - name: Build and tag Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest .
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/my-app:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/container_automation/webapp:latest .
+          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest ${{ secrets.DOCKERHUB_USERNAME }}/container_automation/webapp:latest:${{ github.sha }}
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/container_automation/webapp:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/container_automation/webapp:latest:${{ github.sha }}

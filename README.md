@@ -31,8 +31,3 @@ In the project go to Settings -> Secrets and variables -> Actions, and ensure th
 * DOCKERHUB_USERNAME
 
 ## AWS/Terraform
-
-### Reference material
-
-This was usefull to manualy get Fargate up and running [https://www.youtube.com/watch?v=1n46Nudo6Yo](https://www.youtube.com/watch?v=1n46Nudo6Yo)
-This is a good reference for building it into Terraform [https://github.com/WillBrock/terraform-ecs](https://github.com/WillBrock/terraform-ecs)

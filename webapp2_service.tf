@@ -7,8 +7,8 @@ resource "aws_ecs_service" "webapp2" {
 	force_new_deployment = true
 
     network_configuration {
-        subnets          = module.networking.subnet_ids
-        security_groups  = module.networking.security_group_ids
+        subnets          = aws_subnet.fortress_subnet[*].id
+        security_groups  = aws_security_group.fortress_sg.id
         assign_public_ip = true
     }
 }

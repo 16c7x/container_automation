@@ -8,7 +8,7 @@ resource "aws_ecs_service" "webapp2" {
 
     network_configuration {
         subnets          = aws_subnet.fortress_subnet[*].id
-        security_groups  = aws_security_group.fortress_sg.id
+        security_groups  = [aws_security_group.fortress_sg.id]
         assign_public_ip = true
     }
 }

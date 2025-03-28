@@ -25,7 +25,27 @@ resource "aws_ecs_cluster" "fortress" {
 	name = var.project
 }
 
+locals {
+  name_tag = {
+    Name = "${var.project}"
+  }
+}
+
 data "aws_availability_zones" "available" {}
+
+# Persistent storage
+
+resource "aws_efs_file_system" "cassandra" {
+  creation_token = "cassandra-efs"
+}
+
+resource "aws_efs_mount_target" "cassandra" {
+  file_system_id  = aws_efs_file_system.cassandra.id
+  subnet_id       = aws_subnet.fortress_subnet[0].id
+  security_groups = [aws_security_group.fortress_sg.id]
+}
+
+# Networking
 
 resource "aws_vpc" "fortress_vpc" {
   count                = "1"
@@ -33,14 +53,14 @@ resource "aws_vpc" "fortress_vpc" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = "${var.project}"
+  tags = local.name_tag
 }
 
 resource "aws_internet_gateway" "fortress_gw" {
   count  = "1"
   vpc_id = aws_vpc.fortress_vpc[0].id
 
-  tags = "${var.project}"
+  tags = local.name_tag
 }
 
 resource "aws_subnet" "fortress_subnet" {
@@ -51,9 +71,7 @@ resource "aws_subnet" "fortress_subnet" {
   cidr_block              = "10.138.${1 + count.index}.0/24"
   map_public_ip_on_launch = true
 
-  tags = {
-    Name = "${var.project}"
-  }
+  tags = local.name_tag
 }
 
 resource "aws_route_table" "fortress_public" {
@@ -63,7 +81,7 @@ resource "aws_route_table" "fortress_public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.fortress_gw[0].id
   }
-  tags = "${var.project}"
+  tags = local.name_tag
 }
 
 resource "aws_route_table_association" "fortress_subnet_public" {
@@ -90,7 +108,7 @@ resource "aws_security_group" "fortress_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1" # all protocols and ports
-    cidr_blocks = aws_vpc.fortress_vpc[0].cidr_block
+    cidr_blocks = [aws_vpc.fortress_vpc[0].cidr_block]
   }
 
   egress {
@@ -100,5 +118,5 @@ resource "aws_security_group" "fortress_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = "${var.project}"
+  tags = local.name_tag
 }

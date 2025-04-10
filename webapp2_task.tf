@@ -1,11 +1,13 @@
 resource "aws_ecs_task_definition" "webapp2" {
-	family                   = "webapp2-task"
-	network_mode             = "awsvpc"
-	cpu                      = "512"
-	memory                   = "1024"
-	requires_compatibilities = ["FARGATE"]
+  family                   = "webapp2-task"
+  network_mode             = "awsvpc"
+  cpu                      = "512"
+  memory                   = "1024"
+  requires_compatibilities = ["FARGATE"]
+  execution_role_arn       = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
+  task_role_arn            = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
 
-	container_definitions = jsonencode([
+container_definitions = jsonencode([
 		{
 			name      = "webapp2"
 			image     = "16c7x/webapp:latest"

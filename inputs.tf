@@ -14,3 +14,8 @@ variable "project" {
   description = "Project name"
   default     = "fortress"
 }
+
+variable "cassandra_nodes" {
+  description = "How many casandra instances to build"
+  default     = "3" 
+}

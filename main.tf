@@ -25,12 +25,98 @@ resource "aws_ecs_cluster" "fortress" {
 	name = var.project
 }
 
-# Contain all the networking configuration for readability
-module "networking" {
-  source    = "git@github.com:16c7x/terraform_networking.git"
-  id        = "${var.project}"
-  project   = "${var.project}"
-  allow      = concat(["10.128.0.0/9"], [ "80.7.54.175/32", "109.151.183.6/32", data.external.myip.result.my_ip ])
-  to_create = true
-  subnet    = null
+locals {
+  name_tag = {
+    Name = "${var.project}"
+  }
+}
+
+data "aws_availability_zones" "available" {}
+
+# Persistent storage
+
+resource "aws_efs_file_system" "cassandra" {
+  creation_token = "cassandra-efs"
+}
+
+resource "aws_efs_mount_target" "cassandra" {
+  file_system_id  = aws_efs_file_system.cassandra.id
+  subnet_id       = aws_subnet.fortress_subnet[0].id
+  security_groups = [aws_security_group.fortress_sg.id]
+}
+
+# Networking
+
+resource "aws_vpc" "fortress_vpc" {
+  count                = "1"
+  cidr_block           = "10.138.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = local.name_tag
+}
+
+resource "aws_internet_gateway" "fortress_gw" {
+  count  = "1"
+  vpc_id = aws_vpc.fortress_vpc[0].id
+
+  tags = local.name_tag
+}
+
+resource "aws_subnet" "fortress_subnet" {
+  count             = "1"
+  vpc_id = aws_vpc.fortress_vpc[0].id
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  cidr_block              = "10.138.${1 + count.index}.0/24"
+  map_public_ip_on_launch = true
+
+  tags = local.name_tag
+}
+
+resource "aws_route_table" "fortress_public" {
+  count  = "1"
+  vpc_id = aws_vpc.fortress_vpc[0].id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.fortress_gw[0].id
+  }
+  tags = local.name_tag
+}
+
+resource "aws_route_table_association" "fortress_subnet_public" {
+  count          = "1"
+  subnet_id      = aws_subnet.fortress_subnet[count.index].id
+  route_table_id = aws_route_table.fortress_public[0].id
+}
+
+resource "aws_security_group" "fortress_sg" {
+  name        = "${var.project}"
+  description = "Allow TLS inbound traffic"
+  vpc_id = aws_vpc.fortress_vpc[0].id
+
+  ingress {
+    description = "General ingress rule"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # all protocols and ports
+    cidr_blocks = concat(["10.128.0.0/9"], [ "80.7.54.175/32", "109.151.183.6/32", data.external.myip.result.my_ip ])
+  }
+
+  ingress {
+    description = "Anything from VPC"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # all protocols and ports
+    cidr_blocks = [aws_vpc.fortress_vpc[0].cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = local.name_tag
 }

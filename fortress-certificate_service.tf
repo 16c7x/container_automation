@@ -1,7 +1,7 @@
-resource "aws_ecs_service" "webapp2" {
-  name                 = "webapp2-service"
+resource "aws_ecs_service" "fortress-certificate" {
+  name                 = "fortress-certificate-service"
   cluster              = aws_ecs_cluster.fortress.id
-  task_definition      = aws_ecs_task_definition.webapp2.arn
+  task_definition      = aws_ecs_task_definition.fortress-certificate.arn
   launch_type          = "FARGATE"
   desired_count        = 1
   force_new_deployment = true

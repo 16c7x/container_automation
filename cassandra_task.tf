@@ -4,7 +4,7 @@ resource "aws_ecs_task_definition" "cassandra" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "1024"
   memory                   = "2048"
-  #execution_role_arn       = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
+  execution_role_arn       = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
   task_role_arn            = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
 
   container_definitions = jsonencode([

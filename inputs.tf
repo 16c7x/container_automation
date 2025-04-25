@@ -19,3 +19,10 @@ variable "cassandra_nodes" {
   description = "How many casandra instances to build"
   default     = "3" 
 }
+
+variable "dockerhub_username" {
+  description = "Docker Hub username"
+  default     = "16c7x"
+}
+
+

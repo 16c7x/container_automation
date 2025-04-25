@@ -4,7 +4,7 @@ resource "aws_ecs_task_definition" "cassandra" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = "1024"
   memory                   = "2048"
-  #execution_role_arn       = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
+  execution_role_arn       = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
   task_role_arn            = "arn:aws:iam::574184548053:role/ecsTaskExecutionRole"
 
   container_definitions = jsonencode([
@@ -37,6 +37,14 @@ resource "aws_ecs_task_definition" "cassandra" {
         timeout     = 10
         retries     = 3
         startPeriod = 120
+      }
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.cassandra_logs.name
+          awslogs-region        = "eu-west-1"
+          awslogs-stream-prefix = "ecs"
+        }
       }
     }
   ])

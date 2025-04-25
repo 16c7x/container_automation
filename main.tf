@@ -45,6 +45,17 @@ resource "aws_efs_mount_target" "cassandra" {
   security_groups = [aws_security_group.fortress_sg.id]
 }
 
+# Logging
+resource "aws_cloudwatch_log_group" "fortress_logs" {
+  name              = "/ecs/fortress"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "cassandra_logs" {
+  name              = "/ecs/cassandra"
+  retention_in_days = 7
+}
+
 # Networking
 
 resource "aws_vpc" "fortress_vpc" {

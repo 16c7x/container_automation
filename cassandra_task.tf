@@ -38,6 +38,14 @@ resource "aws_ecs_task_definition" "cassandra" {
         retries     = 3
         startPeriod = 120
       }
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.cassandra_logs.name
+          awslogs-region        = "eu-west-1"
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
 
